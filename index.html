@@ -27,7 +27,7 @@
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden pb-20 lg:pb-0">
 
-    <!-- ================= PAGES: LOGIN (KUNCI UTAMA SEBELUM MASUK) ================= -->
+    <!-- ================= PAGES: LOGIN ================= -->
     <div id="page-login" class="fixed inset-0 z-50 flex items-center justify-center bg-white">
         <div class="absolute inset-0 bg-gradient-to-tr from-blue-50 via-white to-indigo-50 opacity-70"></div>
         <div class="relative w-full max-w-md p-8 m-4 bg-white/80 backdrop-blur-md rounded-3xl border border-blue-100 shadow-2xl">
@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    <!-- ================= MAIN APP LAYOUT (DISEMBUNYIKAN TOTAL SEBELUM LOGIN VALID) ================= -->
+    <!-- ================= MAIN APP LAYOUT ================= -->
     <div id="main-app" class="min-h-screen bg-slate-50 flex flex-col hidden">
         <header class="bg-white border-b border-slate-200/80 sticky top-0 z-40 px-4 py-3 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-2">
@@ -98,8 +98,10 @@
             </nav>
 
             <div class="flex items-center gap-2">
-                <span id="user-display-name" class="text-[10px] font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border uppercase">GURU</span>
-                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-500 p-1 text-sm flex items-center justify-center" title="Keluar"><i class="fa-solid fa-right-from-bracket text-base"></i></button>
+                <!-- KOTAK USERNAME DI SINI SEKARANG SUDAH DIHAPUS SEPENUHNYA AGAR TAMPILAN RESIK -->
+                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-500 p-2 text-sm flex items-center justify-center transition-all" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                </button>
             </div>
         </header>
 
@@ -198,7 +200,7 @@
                     </div>
                 </div>
 
-                <!-- ABSEN SISWA (4X PERTEMUAN MADIN) -->
+                <!-- ABSEN SISWA -->
                 <div id="tab-absen-siswa" class="morph-page space-y-4">
                     <div class="bg-white p-4 rounded-2xl border shadow-sm">
                         <div class="flex justify-between items-center mb-3">
@@ -241,7 +243,7 @@
                     </div>
                 </div>
 
-                <!-- JURNAL GURU (SINKRON SENIN - KAMIS) -->
+                <!-- JURNAL GURU -->
                 <div id="tab-jurnal" class="morph-page space-y-4">
                     <div class="bg-white p-4 rounded-2xl border shadow-sm">
                         <div class="flex justify-between items-center mb-3">
@@ -369,7 +371,6 @@
 
         function saveToLocal(key) { localStorage.setItem(`enc_${key}`, encryptData(state[key])); updateDashboardWidgets(); }
 
-        // PERBAIKAN ALUR UTAMA: JIKA SUDAH PERNAH LOGIN, LANGSUNG DIARAHKAN KE DASHBOARD SAJA
         function checkAutoLogin() {
             if (localStorage.getItem('adm_session_active') === 'true') {
                 loadSessionData();
@@ -378,7 +379,6 @@
                 initApp();
                 buildKelasDropdown();
                 
-                // Paksa buka tab dashboard saja demi keamanan privasi rekap data
                 tabHistory = ['dashboard'];
                 executeTabSwitch('dashboard', true);
             } else {
@@ -428,13 +428,10 @@
             executeTabSwitch(tabHistory[tabHistory.length - 1], true);
         }
 
-        // PERBAIKAN ALUR LOGIN: SETELAH BERHASIL LOGIN DIARAHKAN PERTAMA KALI KE DASHBOARD
         function handleLogin(e) {
             e.preventDefault();
             const nameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPassword').value;
-            
-            // Muat data akun riil dari memori lokal
             const currentAuth = decryptData(localStorage.getItem('enc_auth'), { username: "abdul basith", password: "123456" });
 
             if(nameInput === currentAuth.username.toLowerCase() && passInput === currentAuth.password) {
@@ -446,7 +443,6 @@
                 initApp(); 
                 buildKelasDropdown();
                 
-                // Garansi utama: Alihkan fokus layar langsung ke halaman dashboard (Beranda)
                 tabHistory = ['dashboard'];
                 executeTabSwitch('dashboard', true);
             } else {
@@ -458,7 +454,6 @@
             localStorage.removeItem('adm_session_active');
             document.getElementById('page-login').classList.remove('hidden');
             document.getElementById('main-app').classList.add('hidden');
-            // Reset input login agar bersih kembali
             document.getElementById('loginForm').reset();
             document.getElementById('loginError').classList.add('hidden');
         }
@@ -481,7 +476,6 @@
         }
 
         function switchTab(tabId) {
-            // Pengamanan tambahan: Jika sesi terputus secara tidak sengaja, tendang ke login
             if (localStorage.getItem('adm_session_active') !== 'true') {
                 handleLogout();
                 return;
@@ -524,9 +518,6 @@
             document.getElementById('dash-nama-guru').innerText = state.biodata.nama || '';
             document.getElementById('dash-nip-guru').innerText = `NIP: ${state.biodata.nip || '-'}`;
             document.getElementById('dash-motto-guru').innerText = `"${state.biodata.motto || ''}"`;
-            
-            const currentAuthName = state.auth.username || "GURU";
-            document.getElementById('user-display-name').innerText = currentAuthName.toUpperCase();
 
             document.getElementById('dash-label-absen').innerText = `Kehadiran ${getBulanName(selectedAbsenBulan)}`;
 
